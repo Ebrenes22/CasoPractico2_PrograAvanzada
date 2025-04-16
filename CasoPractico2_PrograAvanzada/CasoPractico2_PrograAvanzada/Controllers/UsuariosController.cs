@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Security.Cryptography;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CasoPractico2_PrograAvanzada.Models;
 
@@ -28,16 +25,12 @@ namespace CasoPractico2_PrograAvanzada.Controllers
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
             var usuario = await _context.Usuarios
                 .FirstOrDefaultAsync(m => m.UsuarioId == id);
             if (usuario == null)
-            {
                 return NotFound();
-            }
 
             return View(usuario);
         }
@@ -49,14 +42,13 @@ namespace CasoPractico2_PrograAvanzada.Controllers
         }
 
         // POST: Usuarios/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("UsuarioId,NombreUsuario,NombreCompleto,Correo,Telefono,Contrasena,Rol")] Usuario usuario)
         {
             if (ModelState.IsValid)
             {
+                usuario.Contrasena = HashPassword(usuario.Contrasena);
                 _context.Add(usuario);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -68,47 +60,48 @@ namespace CasoPractico2_PrograAvanzada.Controllers
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
             var usuario = await _context.Usuarios.FindAsync(id);
             if (usuario == null)
-            {
                 return NotFound();
-            }
+
             return View(usuario);
         }
 
         // POST: Usuarios/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("UsuarioId,NombreUsuario,NombreCompleto,Correo,Telefono,Contrasena,Rol")] Usuario usuario)
         {
             if (id != usuario.UsuarioId)
-            {
                 return NotFound();
-            }
 
             if (ModelState.IsValid)
             {
                 try
                 {
+                    var usuarioExistente = await _context.Usuarios.AsNoTracking()
+                        .FirstOrDefaultAsync(u => u.UsuarioId == id);
+
+                    if (usuarioExistente == null)
+                        return NotFound();
+
+                    // Hashear solo si cambió la contraseña
+                    if (usuario.Contrasena != usuarioExistente.Contrasena)
+                        usuario.Contrasena = HashPassword(usuario.Contrasena);
+                    else
+                        usuario.Contrasena = usuarioExistente.Contrasena;
+
                     _context.Update(usuario);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!UsuarioExists(usuario.UsuarioId))
-                    {
                         return NotFound();
-                    }
                     else
-                    {
                         throw;
-                    }
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -119,16 +112,12 @@ namespace CasoPractico2_PrograAvanzada.Controllers
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
             var usuario = await _context.Usuarios
                 .FirstOrDefaultAsync(m => m.UsuarioId == id);
             if (usuario == null)
-            {
                 return NotFound();
-            }
 
             return View(usuario);
         }
@@ -142,15 +131,26 @@ namespace CasoPractico2_PrograAvanzada.Controllers
             if (usuario != null)
             {
                 _context.Usuarios.Remove(usuario);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool UsuarioExists(int id)
         {
             return _context.Usuarios.Any(e => e.UsuarioId == id);
+        }
+
+        // Método para aplicar SHA256
+        private string HashPassword(string password)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] bytes = Encoding.UTF8.GetBytes(password);
+                byte[] hash = sha256.ComputeHash(bytes);
+                return Convert.ToBase64String(hash);
+            }
         }
     }
 }
