@@ -48,6 +48,7 @@ namespace CasoPractico2_PrograAvanzada.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Hash de contraseña al crear
                 usuario.Contrasena = HashPassword(usuario.Contrasena);
                 _context.Add(usuario);
                 await _context.SaveChangesAsync();
@@ -87,11 +88,8 @@ namespace CasoPractico2_PrograAvanzada.Controllers
                     if (usuarioExistente == null)
                         return NotFound();
 
-                    // Hashear solo si cambió la contraseña
-                    if (usuario.Contrasena != usuarioExistente.Contrasena)
-                        usuario.Contrasena = HashPassword(usuario.Contrasena);
-                    else
-                        usuario.Contrasena = usuarioExistente.Contrasena;
+                    // No permitir modificar la contraseña desde Edit
+                    usuario.Contrasena = usuarioExistente.Contrasena;
 
                     _context.Update(usuario);
                     await _context.SaveChangesAsync();
@@ -105,6 +103,7 @@ namespace CasoPractico2_PrograAvanzada.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
             return View(usuario);
         }
 
@@ -142,7 +141,7 @@ namespace CasoPractico2_PrograAvanzada.Controllers
             return _context.Usuarios.Any(e => e.UsuarioId == id);
         }
 
-        // Método para aplicar SHA256
+        // Método de hashing SHA256
         private string HashPassword(string password)
         {
             using (SHA256 sha256 = SHA256.Create())

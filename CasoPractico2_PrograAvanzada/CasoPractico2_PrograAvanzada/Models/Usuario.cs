@@ -22,7 +22,7 @@ namespace CasoPractico2_PrograAvanzada.Models
         [Phone]
         public string Telefono { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "La contraseña es obligatoria.")]
         [DataType(DataType.Password)]
         public string Contrasena { get; set; }
 
