@@ -2,6 +2,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 using CasoPractico2_PrograAvanzada.Models;
 
 namespace CasoPractico2_PrograAvanzada.Controllers
@@ -14,6 +15,48 @@ namespace CasoPractico2_PrograAvanzada.Controllers
         {
             _context = context;
         }
+
+        // ===================== LOGIN =====================
+        [HttpGet]
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(LoginViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var hashed = HashPassword(model.Contrasena);
+                var usuario = await _context.Usuarios
+                    .FirstOrDefaultAsync(u => u.NombreUsuario == model.NombreUsuario && u.Contrasena == hashed);
+
+                if (usuario != null)
+                {
+                    HttpContext.Session.SetString("UsuarioId", usuario.UsuarioId.ToString());
+                    HttpContext.Session.SetString("NombreUsuario", usuario.NombreUsuario);
+                    HttpContext.Session.SetString("Rol", usuario.Rol);
+
+                    switch (usuario.Rol)
+                    {
+                        case "Administrador":
+                            return RedirectToAction("Index", "Usuarios");
+                        case "Organizador":
+                            return RedirectToAction("PanelOrganizador", "Home");
+                        case "Usuario":
+                            return RedirectToAction("Participar", "Eventos");
+                    }
+                }
+
+                ModelState.AddModelError("", "Credenciales incorrectas");
+            }
+
+            return View(model);
+        }
+
+        // ===================== CRUD =====================
 
         // GET: Usuarios
         public async Task<IActionResult> Index()
@@ -48,7 +91,6 @@ namespace CasoPractico2_PrograAvanzada.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Hash de contraseña al crear
                 usuario.Contrasena = HashPassword(usuario.Contrasena);
                 _context.Add(usuario);
                 await _context.SaveChangesAsync();
@@ -88,7 +130,6 @@ namespace CasoPractico2_PrograAvanzada.Controllers
                     if (usuarioExistente == null)
                         return NotFound();
 
-                    // No permitir modificar la contraseña desde Edit
                     usuario.Contrasena = usuarioExistente.Contrasena;
 
                     _context.Update(usuario);
@@ -141,7 +182,7 @@ namespace CasoPractico2_PrograAvanzada.Controllers
             return _context.Usuarios.Any(e => e.UsuarioId == id);
         }
 
-        // Método de hashing SHA256
+        // Método de hashing
         private string HashPassword(string password)
         {
             using (SHA256 sha256 = SHA256.Create())
