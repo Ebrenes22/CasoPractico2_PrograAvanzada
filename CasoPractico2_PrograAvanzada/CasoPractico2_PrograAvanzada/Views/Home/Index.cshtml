@@ -1,8 +1,76 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Inicio";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container py-5">
+    <h2 class="mb-4 text-center">Panel Principal - EventCorp</h2>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        <!-- Usuarios -->
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Gestión de Usuarios</h5>
+                    <p class="card-text">Administra los usuarios del sistema, sus roles y accesos.</p>
+                    <a href="@Url.Action("Index", "Usuarios")" class="btn btn-primary">Ir a Usuarios</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Categorías -->
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Gestión de Categorías</h5>
+                    <p class="card-text">Crea y administra categorías de eventos.</p>
+                    <a href="@Url.Action("Index", "Categorias")" class="btn btn-success">Ir a Categorías</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Eventos -->
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Gestión de Eventos</h5>
+                    <p class="card-text">Crea, edita y visualiza eventos corporativos.</p>
+                    <a href="@Url.Action("Index", "Eventos")" class="btn btn-warning">Ir a Eventos</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inscripciones -->
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Inscripciones</h5>
+                    <p class="card-text">Regístrate en eventos disponibles o consulta inscripciones.</p>
+                    <a href="@Url.Action("Index", "Inscripciones")" class="btn btn-info">Ver Inscripciones</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Dashboard</h5>
+                    <p class="card-text">Visualiza estadísticas y métricas del sistema.</p>
+                    <a href="@Url.Action("Index", "Dashboard")" class="btn btn-dark">Ir al Dashboard</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Pública -->
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title">API Pública</h5>
+                    <p class="card-text">Consulta eventos desde aplicaciones externas vía API.</p>
+                    <a href="/swagger" target="_blank" class="btn btn-secondary">Ver Documentación</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
