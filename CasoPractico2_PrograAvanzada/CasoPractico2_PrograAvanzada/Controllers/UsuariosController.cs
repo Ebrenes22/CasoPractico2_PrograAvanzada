@@ -39,15 +39,7 @@ namespace CasoPractico2_PrograAvanzada.Controllers
                     HttpContext.Session.SetString("NombreUsuario", usuario.NombreUsuario);
                     HttpContext.Session.SetString("Rol", usuario.Rol);
 
-                    switch (usuario.Rol)
-                    {
-                        case "Administrador":
-                            return RedirectToAction("Index", "Usuarios");
-                        case "Organizador":
-                            return RedirectToAction("PanelOrganizador", "Home");
-                        case "Usuario":
-                            return RedirectToAction("Participar", "Eventos");
-                    }
+                    return RedirectToAction("Index", "Home");
                 }
 
                 ModelState.AddModelError("", "Credenciales incorrectas");
@@ -56,39 +48,47 @@ namespace CasoPractico2_PrograAvanzada.Controllers
             return View(model);
         }
 
+        // ===================== VALIDACIÓN DE ROL =====================
+        private bool EsAdministrador() => HttpContext.Session.GetString("Rol") == "Administrador";
+
         // ===================== CRUD =====================
 
-        // GET: Usuarios
         public async Task<IActionResult> Index()
         {
+            if (!EsAdministrador())
+                return RedirectToAction("Index", "Home");
+
             return View(await _context.Usuarios.ToListAsync());
         }
 
-        // GET: Usuarios/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-                return NotFound();
+            if (!EsAdministrador())
+                return RedirectToAction("Index", "Home");
 
-            var usuario = await _context.Usuarios
-                .FirstOrDefaultAsync(m => m.UsuarioId == id);
-            if (usuario == null)
-                return NotFound();
+            if (id == null) return NotFound();
+
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(m => m.UsuarioId == id);
+            if (usuario == null) return NotFound();
 
             return View(usuario);
         }
 
-        // GET: Usuarios/Create
         public IActionResult Create()
         {
+            if (!EsAdministrador())
+                return RedirectToAction("Index", "Home");
+
             return View();
         }
 
-        // POST: Usuarios/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("UsuarioId,NombreUsuario,NombreCompleto,Correo,Telefono,Contrasena,Rol")] Usuario usuario)
         {
+            if (!EsAdministrador())
+                return RedirectToAction("Index", "Home");
+
             if (ModelState.IsValid)
             {
                 usuario.Contrasena = HashPassword(usuario.Contrasena);
@@ -99,26 +99,27 @@ namespace CasoPractico2_PrograAvanzada.Controllers
             return View(usuario);
         }
 
-        // GET: Usuarios/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-                return NotFound();
+            if (!EsAdministrador())
+                return RedirectToAction("Index", "Home");
+
+            if (id == null) return NotFound();
 
             var usuario = await _context.Usuarios.FindAsync(id);
-            if (usuario == null)
-                return NotFound();
+            if (usuario == null) return NotFound();
 
             return View(usuario);
         }
 
-        // POST: Usuarios/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("UsuarioId,NombreUsuario,NombreCompleto,Correo,Telefono,Contrasena,Rol")] Usuario usuario)
         {
-            if (id != usuario.UsuarioId)
-                return NotFound();
+            if (!EsAdministrador())
+                return RedirectToAction("Index", "Home");
+
+            if (id != usuario.UsuarioId) return NotFound();
 
             if (ModelState.IsValid)
             {
@@ -127,8 +128,7 @@ namespace CasoPractico2_PrograAvanzada.Controllers
                     var usuarioExistente = await _context.Usuarios.AsNoTracking()
                         .FirstOrDefaultAsync(u => u.UsuarioId == id);
 
-                    if (usuarioExistente == null)
-                        return NotFound();
+                    if (usuarioExistente == null) return NotFound();
 
                     usuario.Contrasena = usuarioExistente.Contrasena;
 
@@ -137,10 +137,8 @@ namespace CasoPractico2_PrograAvanzada.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UsuarioExists(usuario.UsuarioId))
-                        return NotFound();
-                    else
-                        throw;
+                    if (!UsuarioExists(usuario.UsuarioId)) return NotFound();
+                    else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -148,25 +146,26 @@ namespace CasoPractico2_PrograAvanzada.Controllers
             return View(usuario);
         }
 
-        // GET: Usuarios/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-                return NotFound();
+            if (!EsAdministrador())
+                return RedirectToAction("Index", "Home");
 
-            var usuario = await _context.Usuarios
-                .FirstOrDefaultAsync(m => m.UsuarioId == id);
-            if (usuario == null)
-                return NotFound();
+            if (id == null) return NotFound();
+
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(m => m.UsuarioId == id);
+            if (usuario == null) return NotFound();
 
             return View(usuario);
         }
 
-        // POST: Usuarios/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (!EsAdministrador())
+                return RedirectToAction("Index", "Home");
+
             var usuario = await _context.Usuarios.FindAsync(id);
             if (usuario != null)
             {
@@ -182,7 +181,6 @@ namespace CasoPractico2_PrograAvanzada.Controllers
             return _context.Usuarios.Any(e => e.UsuarioId == id);
         }
 
-        // Método de hashing
         private string HashPassword(string password)
         {
             using (SHA256 sha256 = SHA256.Create())

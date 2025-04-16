@@ -5,15 +5,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Agregar soporte para sesiones
+builder.Services.AddSession();
+
+// Configurar DbContext
 builder.Services.AddDbContext<EventCorpDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("EventCorpDb")));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -22,10 +27,14 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// Activar uso de sesiones
+app.UseSession();
+
 app.UseAuthorization();
 
+// Redirigir al login como inicio por defecto
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Usuarios}/{action=Login}/{id?}");
 
 app.Run();
