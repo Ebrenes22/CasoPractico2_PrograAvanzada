@@ -1,8 +1,12 @@
+using CasoPractico2_PrograAvanzada.Models;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddDbContext<EventCorpDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("EventCorpDb")));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
