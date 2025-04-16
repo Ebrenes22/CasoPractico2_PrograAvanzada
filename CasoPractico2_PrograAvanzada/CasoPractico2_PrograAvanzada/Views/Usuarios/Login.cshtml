@@ -27,6 +27,11 @@
     <div class="login-card">
         <h2 class="text-center mb-4">Iniciar Sesión</h2>
 
+        @if (ViewBag.Mensaje != null)
+        {
+            <div class="alert alert-success text-center">@ViewBag.Mensaje</div>
+        }
+
         <form asp-action="Login" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
@@ -46,7 +51,7 @@
         </form>
 
         <div class="text-center mt-3">
-            <a asp-action="Create" class="text-muted">¿No tienes cuenta? Regístrate aquí</a>
+            <a asp-action="OlvidoContrasena" class="text-muted">¿Olvidaste tu contraseña?</a>
         </div>
     </div>
 </div>

@@ -20,6 +20,10 @@ namespace CasoPractico2_PrograAvanzada.Controllers
         [HttpGet]
         public IActionResult Login()
         {
+            if (TempData["Mensaje"] != null)
+            {
+                ViewBag.Mensaje = TempData["Mensaje"].ToString();
+            }
             return View();
         }
 
@@ -43,6 +47,36 @@ namespace CasoPractico2_PrograAvanzada.Controllers
                 }
 
                 ModelState.AddModelError("", "Credenciales incorrectas");
+            }
+
+            return View(model);
+        }
+
+        // ===================== RECUPERACIÓN DE CONTRASEÑA =====================
+        [HttpGet]
+        public IActionResult OlvidoContrasena()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> OlvidoContrasena(OlvidoContrasenaViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Correo == model.Correo);
+                if (usuario != null)
+                {
+                    usuario.Contrasena = HashPassword(model.NuevaContrasena);
+                    _context.Update(usuario);
+                    await _context.SaveChangesAsync();
+
+                    TempData["Mensaje"] = "Contraseña actualizada correctamente.";
+                    return RedirectToAction("Login");
+                }
+
+                ModelState.AddModelError("", "No se encontró un usuario con ese correo.");
             }
 
             return View(model);
@@ -176,6 +210,7 @@ namespace CasoPractico2_PrograAvanzada.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // ===================== UTILS =====================
         private bool UsuarioExists(int id)
         {
             return _context.Usuarios.Any(e => e.UsuarioId == id);
