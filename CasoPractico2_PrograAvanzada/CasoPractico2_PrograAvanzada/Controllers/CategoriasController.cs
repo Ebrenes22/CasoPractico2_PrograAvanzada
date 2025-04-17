@@ -2,10 +2,9 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using CasoPractico2_PrograAvanzada.Models;
 using Microsoft.AspNetCore.Http;
+using CasoPractico2_PrograAvanzada.Models;
 
 namespace CasoPractico2_PrograAvanzada.Controllers
 {
@@ -30,8 +29,7 @@ namespace CasoPractico2_PrograAvanzada.Controllers
             if (!EsAdmin())
                 return RedirectToAction("Index", "Home");
 
-            var categorias = _context.Categorias.Include(c => c.UsuarioRegistro);
-            return View(await categorias.ToListAsync());
+            return View(await _context.Categorias.ToListAsync());
         }
 
         // GET: Categorias/Details/5
@@ -40,15 +38,12 @@ namespace CasoPractico2_PrograAvanzada.Controllers
             if (!EsAdmin())
                 return RedirectToAction("Index", "Home");
 
-            if (id == null)
-                return NotFound();
+            if (id == null) return NotFound();
 
             var categoria = await _context.Categorias
-                .Include(c => c.UsuarioRegistro)
-                .FirstOrDefaultAsync(m => m.CategoriaId == id);
+                .FirstOrDefaultAsync(c => c.CategoriaId == id);
 
-            if (categoria == null)
-                return NotFound();
+            if (categoria == null) return NotFound();
 
             return View(categoria);
         }
@@ -59,26 +54,26 @@ namespace CasoPractico2_PrograAvanzada.Controllers
             if (!EsAdmin())
                 return RedirectToAction("Index", "Home");
 
-            ViewData["UsuarioRegistroId"] = new SelectList(_context.Usuarios, "UsuarioId", "NombreUsuario");
             return View();
         }
 
         // POST: Categorias/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CategoriaId,Nombre,Descripcion,Estado,FechaRegistro,UsuarioRegistroId")] Categoria categoria)
+        public async Task<IActionResult> Create([Bind("Nombre,Descripcion,Estado")] Categoria categoria)
         {
             if (!EsAdmin())
                 return RedirectToAction("Index", "Home");
 
             if (ModelState.IsValid)
             {
+                categoria.FechaRegistro = DateTime.Now;
+
                 _context.Add(categoria);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["UsuarioRegistroId"] = new SelectList(_context.Usuarios, "UsuarioId", "NombreUsuario", categoria.UsuarioRegistroId);
             return View(categoria);
         }
 
@@ -88,21 +83,18 @@ namespace CasoPractico2_PrograAvanzada.Controllers
             if (!EsAdmin())
                 return RedirectToAction("Index", "Home");
 
-            if (id == null)
-                return NotFound();
+            if (id == null) return NotFound();
 
             var categoria = await _context.Categorias.FindAsync(id);
-            if (categoria == null)
-                return NotFound();
+            if (categoria == null) return NotFound();
 
-            ViewData["UsuarioRegistroId"] = new SelectList(_context.Usuarios, "UsuarioId", "NombreUsuario", categoria.UsuarioRegistroId);
             return View(categoria);
         }
 
         // POST: Categorias/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CategoriaId,Nombre,Descripcion,Estado,FechaRegistro,UsuarioRegistroId")] Categoria categoria)
+        public async Task<IActionResult> Edit(int id, [Bind("CategoriaId,Nombre,Descripcion,Estado")] Categoria categoria)
         {
             if (!EsAdmin())
                 return RedirectToAction("Index", "Home");
@@ -114,6 +106,14 @@ namespace CasoPractico2_PrograAvanzada.Controllers
             {
                 try
                 {
+                    var existente = await _context.Categorias
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(c => c.CategoriaId == id);
+
+                    if (existente == null) return NotFound();
+
+                    categoria.FechaRegistro = existente.FechaRegistro;
+
                     _context.Update(categoria);
                     await _context.SaveChangesAsync();
                 }
@@ -127,7 +127,6 @@ namespace CasoPractico2_PrograAvanzada.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["UsuarioRegistroId"] = new SelectList(_context.Usuarios, "UsuarioId", "NombreUsuario", categoria.UsuarioRegistroId);
             return View(categoria);
         }
 
@@ -137,15 +136,12 @@ namespace CasoPractico2_PrograAvanzada.Controllers
             if (!EsAdmin())
                 return RedirectToAction("Index", "Home");
 
-            if (id == null)
-                return NotFound();
+            if (id == null) return NotFound();
 
             var categoria = await _context.Categorias
-                .Include(c => c.UsuarioRegistro)
-                .FirstOrDefaultAsync(m => m.CategoriaId == id);
+                .FirstOrDefaultAsync(c => c.CategoriaId == id);
 
-            if (categoria == null)
-                return NotFound();
+            if (categoria == null) return NotFound();
 
             return View(categoria);
         }

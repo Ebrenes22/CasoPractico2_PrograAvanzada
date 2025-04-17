@@ -15,13 +15,6 @@ namespace CasoPractico2_PrograAvanzada.Models
         {
             base.OnModelCreating(modelBuilder);
 
-            // Relación entre Usuario y Categoria (UsuarioRegistro)
-            modelBuilder.Entity<Categoria>()
-                .HasOne(c => c.UsuarioRegistro)
-                .WithMany()
-                .HasForeignKey(c => c.UsuarioRegistroId)
-                .OnDelete(DeleteBehavior.Restrict); 
-
             // Relación entre Usuario y Evento (UsuarioRegistro)
             modelBuilder.Entity<Evento>()
                 .HasOne(e => e.UsuarioRegistro)
