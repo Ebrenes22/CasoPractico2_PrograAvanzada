@@ -11,7 +11,7 @@ builder.Services.AddSession();
 
 // Configurar DbContext
 builder.Services.AddDbContext<EventCorpDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("EventCorpDb")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("EventCorpDb")).EnableSensitiveDataLogging().LogTo(Console.WriteLine, LogLevel.Information));
 
 var app = builder.Build();
 

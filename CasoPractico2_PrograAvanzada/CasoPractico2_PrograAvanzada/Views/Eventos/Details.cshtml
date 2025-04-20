@@ -1,0 +1,73 @@
+﻿@model CasoPractico2_PrograAvanzada.Models.Evento
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="card-header bg-info text-white">
+        <h1 class="card-title">Detalles del Evento</h1>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                <h2>@Model.Titulo</h2>
+                <div class="badge badge-primary mb-3">@Model.Categoria.Descripcion</div>
+
+                <h4 class="mt-4">Descripción</h4>
+                <p>@Model.Descripcion</p>
+
+                <h4 class="mt-4">Ubicación</h4>
+                <p>@Model.Ubicacion</p>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title">Información del Evento</h5>
+
+                        <div class="mb-2">
+                            <strong>Fecha:</strong>
+                            <span>@Model.Fecha.ToString("dd/MM/yyyy")</span>
+                        </div>
+
+                        <div class="mb-2">
+                            <strong>Hora:</strong>
+                            <span>@Model.Hora.ToString(@"hh\:mm")</span>
+                        </div>
+
+                        <div class="mb-2">
+                            <strong>Duración:</strong>
+                            <span>@Model.Duracion minutos</span>
+                        </div>
+
+                        <div class="mb-2">
+                            <strong>Cupo Máximo:</strong>
+                            <span>@Model.CupoMaximo personas</span>
+                        </div>
+
+                        <hr />
+
+                        <div class="mb-2">
+                            <strong>Registrado por:</strong>
+                            <span>@Model.UsuarioRegistro.NombreUsuario</span>
+                        </div>
+
+                        <div class="mb-2">
+                            <strong>Fecha de Registro:</strong>
+                            <span>@Model.FechaRegistro.ToString("dd/MM/yyyy HH:mm")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <a asp-action="Edit" asp-route-id="@Model.EventoId" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Editar
+            </a>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver al listado
+            </a>
+        </div>
+    </div>
