@@ -1,0 +1,53 @@
+﻿@model CasoPractico2_PrograAvanzada.Models.Evento
+
+@{
+    ViewData["Title"] = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="card-header bg-danger text-white">
+        <h1 class="card-title">Confirmar eliminación</h1>
+    </div>
+    <div class="card-body">
+        <h3>¿Está seguro que desea eliminar este evento?</h3>
+
+        <div class="alert alert-warning mt-3">
+            <i class="fas fa-exclamation-triangle"></i> Esta acción no se puede deshacer.
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-8">
+                <dl class="row">
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Titulo)</dt>
+                    <dd class="col-sm-9">@Html.DisplayFor(model => model.Titulo)</dd>
+
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Categoria)</dt>
+                    <dd class="col-sm-9">@Html.DisplayFor(model => model.Categoria.Descripcion)</dd>
+
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Fecha)</dt>
+                    <dd class="col-sm-9">@Model.Fecha.ToString("dd/MM/yyyy")</dd>
+
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Hora)</dt>
+                    <dd class="col-sm-9">@Model.Hora.ToString(@"hh\:mm")</dd>
+
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Ubicacion)</dt>
+                    <dd class="col-sm-9">@Html.DisplayFor(model => model.Ubicacion)</dd>
+
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.CupoMaximo)</dt>
+                    <dd class="col-sm-9">@Html.DisplayFor(model => model.CupoMaximo)</dd>
+                </dl>
+            </div>
+        </div>
+
+        <form asp-action="Delete" class="mt-4">
+            <input type="hidden" asp-for="EventoId" />
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash"></i> Eliminar
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver al listado
+            </a>
+        </form>
+    </div>
+</div>
