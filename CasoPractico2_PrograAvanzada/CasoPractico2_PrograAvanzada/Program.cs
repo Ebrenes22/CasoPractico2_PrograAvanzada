@@ -15,7 +15,7 @@ builder.Services.AddControllersWithViews();
 
 // Agregar soporte para sesiones
 builder.Services.AddSession();
-
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {

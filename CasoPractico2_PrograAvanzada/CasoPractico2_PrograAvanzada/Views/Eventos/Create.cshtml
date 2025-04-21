@@ -96,5 +96,10 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 
-    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.querySelector('input[type="date"]').min = today;
+        });
+    </script>
 }
