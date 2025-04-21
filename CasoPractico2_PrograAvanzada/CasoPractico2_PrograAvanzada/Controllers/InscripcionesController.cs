@@ -108,7 +108,8 @@ namespace CasoPractico2_PrograAvanzada.Controllers
             {
                 UsuarioId = userId,
                 EventoId = id,
-                FechaRegistro = DateTime.Now
+                FechaRegistro = DateTime.Now,
+                Asistencia = ""
             };
 
             _context.Inscripciones.Add(ins);
