@@ -1,10 +1,7 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CasoPractico2_PrograAvanzada.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using CasoPractico2_PrograAvanzada.Models;
 
 namespace CasoPractico2_PrograAvanzada.Controllers
 {
@@ -111,6 +108,7 @@ namespace CasoPractico2_PrograAvanzada.Controllers
             ModelState.Remove("FechaRegistro");
             ModelState.Remove("UsuarioRegistroId");
             ModelState.Remove("Categoria");
+            ModelState.Remove("Disponible");
 
             if (ModelState.IsValid)
             {
@@ -205,7 +203,7 @@ namespace CasoPractico2_PrograAvanzada.Controllers
             }
 
             ModelState.Remove("UsuarioRegistro");
-            ModelState.Remove("Categoria"); 
+            ModelState.Remove("Categoria");
 
             if (ModelState.IsValid)
             {

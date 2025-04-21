@@ -10,6 +10,7 @@ namespace CasoPractico2_PrograAvanzada.Models
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Categoria> Categorias { get; set; }
         public DbSet<Evento> Eventos { get; set; }
+        public DbSet<Inscripciones> Inscripciones { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -28,10 +29,20 @@ namespace CasoPractico2_PrograAvanzada.Models
                 .WithMany()
                 .HasForeignKey(e => e.CategoriaId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Inscripciones>()
+                .HasOne(i => i.Evento)
+                .WithMany()
+                .HasForeignKey(i => i.EventoId);
+
+            modelBuilder.Entity<Inscripciones>()
+                .HasOne(i => i.Usuario)
+                .WithMany()
+                .HasForeignKey(i => i.UsuarioId);
         }
 
 
     }
 
 
-    }
+}

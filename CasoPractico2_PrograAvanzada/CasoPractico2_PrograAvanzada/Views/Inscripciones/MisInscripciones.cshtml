@@ -1,0 +1,64 @@
+﻿@model IEnumerable<CasoPractico2_PrograAvanzada.Models.Inscripciones>
+
+@{
+    ViewData["Title"] = "Mis Inscripciones";
+    var hoy = DateTime.Today;
+}
+
+<div class="card">
+    <div class="card-header bg-info text-white">
+        <h1 class="card-title">Mis Inscripciones</h1>
+    </div>
+    <div class="card-body">
+
+        @* Mensajes de estado *@
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">@TempData["Error"]</div>
+        }
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">@TempData["Success"]</div>
+        }
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="bg-info text-white">
+                    <tr>
+                        <th>Evento</th>
+                        <th>Categoría</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Evento.Titulo</td>
+                            <td>@item.Evento.Categoria.Descripcion</td>
+                            <td>@item.Evento.Fecha.ToString("dd/MM/yyyy")</td>
+                            <td>@item.Evento.Hora.ToString(@"hh\:mm")</td>
+                            <td>
+                                @if (item.Evento.Fecha.Date > hoy)
+                                {
+                                    <a asp-action="Desinscribirse"
+                                       asp-route-id="@item.InscripcionesId"
+                                       class="btn btn-danger btn-sm">
+                                        <i class="fas fa-times-circle"></i> Desinscribirme
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Evento pasado</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
