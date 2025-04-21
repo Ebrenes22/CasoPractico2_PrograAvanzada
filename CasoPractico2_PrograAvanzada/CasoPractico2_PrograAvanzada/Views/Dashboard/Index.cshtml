@@ -1,0 +1,178 @@
+﻿@model CasoPractico2_PrograAvanzada.Controllers.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container-fluid mt-4">
+    <h1 class="mb-4">Dashboard de Administración</h1>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Total de Eventos</h5>
+                    <p class="card-text display-4">@Model.TotalEventos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Usuarios Activos</h5>
+                    <p class="card-text display-4">@Model.TotalUsuarios</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Asistentes este mes</h5>
+                    <p class="card-text display-4">@Model.AsistentesRegistradosMesActual</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Top 5 Eventos Más Populares</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Evento</th>
+                                    <th>Categoría</th>
+                                    <th>Fecha</th>
+                                    <th>Asistentes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var evento in Model.EventosPopulares)
+                                {
+                                    <tr>
+                                        <td><a href="@Url.Action("Details", "Eventos", new { id = evento.EventoId })">@evento.Titulo</a></td>
+                                        <td>@evento.Categoria</td>
+                                        <td>@evento.Fecha.ToString("dd/MM/yyyy")</td>
+                                        <td><span class="badge bg-success">@evento.CantidadAsistentes</span></td>
+                                    </tr>
+                                }
+                                @if (!Model.EventosPopulares.Any())
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center">No hay eventos registrados</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">Inscripciones Mensuales</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="inscripcionesMensualesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">Resumen de Actividad</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6>Inscripciones por mes</h6>
+                            <div id="inscripcionesPorMes">
+                                <ul class="list-group">
+                                    @foreach (var item in Model.InscripcionesPorMes.OrderByDescending(i => i.Año).ThenByDescending(i => i.Mes))
+                                    {
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            @item.NombreMes @item.Año
+                                            <span class="badge bg-primary rounded-pill">@item.Cantidad</span>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const fechaActual = new Date();
+            fetch('@Url.Action("GetEventosPendientes", "Api")')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('eventosPendientes').innerText = data.toString();
+                })
+                .catch(error => {
+                    document.getElementById('eventosPendientes').innerText = "Error";
+                    console.error('Error al obtener eventos pendientes:', error);
+                });
+
+            const inscripcionesPorMes = @Html.Raw(Json.Serialize(Model.InscripcionesPorMes));
+
+            if (inscripcionesPorMes && inscripcionesPorMes.length > 0) {
+                const labels = inscripcionesPorMes.map(item => `${item.nombreMes} ${item.año}`);
+                const datos = inscripcionesPorMes.map(item => item.cantidad);
+
+                const ctx = document.getElementById('inscripcionesMensualesChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Inscripciones',
+                            data: datos,
+                            backgroundColor: 'rgba(40, 167, 69, 0.6)',
+                            borderColor: 'rgba(40, 167, 69, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Inscripciones por Mes'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Cantidad de Inscripciones'
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                document.getElementById('inscripcionesMensualesChart').innerHTML = 'No hay datos disponibles';
+            }
+        });
+    </script>
+}
