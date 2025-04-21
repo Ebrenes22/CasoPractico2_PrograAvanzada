@@ -17,7 +17,15 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSession();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "API de Eventos",
+        Version = "v1",
+        Description = "API para consultar eventos"
+    });
+});
 
 // Configurar DbContext
 builder.Services.AddDbContext<EventCorpDbContext>(options =>
@@ -45,7 +53,16 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
+{
+    // Configurar Swagger solo en entorno de desarrollo
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "API de Eventos v1");
+    });
+}
+else
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
@@ -55,7 +72,6 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseCors("AllowAll");
 
-// GET /api/events
 app.MapGet("/api/events", async (EventCorpDbContext dbContext) =>
 {
     var eventos = await dbContext.Eventos
@@ -77,9 +93,9 @@ app.MapGet("/api/events", async (EventCorpDbContext dbContext) =>
 
     return Results.Ok(eventos);
 })
-.WithName("GetEvents");
+.WithName("GetEvents")
+.WithTags("Eventos");
 
-// GET /api/events/{id}
 app.MapGet("/api/events/{id}", async (int id, EventCorpDbContext dbContext) =>
 {
     var evento = await dbContext.Eventos
@@ -108,12 +124,13 @@ app.MapGet("/api/events/{id}", async (int id, EventCorpDbContext dbContext) =>
         UsuarioRegistro = new
         {
             evento.UsuarioRegistro.UsuarioId,
-            Nombre = evento.UsuarioRegistro.NombreUsuario,
+            Nombre = evento.UsuarioRegistro.NombreCompleto,
             Email = evento.UsuarioRegistro.Correo
         }
     });
 })
-.WithName("GetEventById");
+.WithName("GetEventById")
+.WithTags("Eventos");
 
 app.UseRouting();
 
