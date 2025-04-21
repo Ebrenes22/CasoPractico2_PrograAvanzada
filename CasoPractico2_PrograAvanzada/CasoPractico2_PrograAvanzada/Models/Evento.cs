@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CasoPractico2_PrograAvanzada.Models
@@ -55,6 +54,9 @@ namespace CasoPractico2_PrograAvanzada.Models
 
         public virtual Categoria Categoria { get; set; }
         public virtual Usuario UsuarioRegistro { get; set; }
+
+        [NotMapped]
+        public bool Disponible { get; set; }
     }
 
     public class FechaFuturaAttribute : ValidationAttribute
