@@ -1,8 +1,12 @@
 ﻿@model CasoPractico2_PrograAvanzada.Models.Evento
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
 
-@{
-    ViewData["Title"] = "Details";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+@{  
+   ViewData["Title"] = "Details";  
+   Layout = "~/Views/Shared/_Layout.cshtml";  
+   var rol = HttpContextAccessor.HttpContext.Session.GetString("Rol");  
+   var idUsuario = int.Parse(HttpContextAccessor.HttpContext.Session.GetString("UsuarioId"));  
 }
 
 <div class="card">
@@ -66,6 +70,12 @@
             <a asp-action="Edit" asp-route-id="@Model.EventoId" class="btn btn-primary">
                 <i class="fas fa-edit"></i> Editar
             </a>
+            @if (rol != null && ((rol == "Organizador" && Model.UsuarioRegistroId == idUsuario) || rol == "Administrador"))
+            {
+                <a asp-action="Inscripciones" asp-route-id="@Model.EventoId" class="btn btn-info">
+                    <i class="fas fa-users"></i> Ver Inscripciones
+                </a>
+            }
             <a asp-action="Index" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Volver al listado
             </a>

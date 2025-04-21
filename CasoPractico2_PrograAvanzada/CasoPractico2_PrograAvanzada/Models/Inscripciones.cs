@@ -15,6 +15,8 @@ namespace CasoPractico2_PrograAvanzada.Models
         [DataType(DataType.Date)]
         public DateTime FechaRegistro { get; set; } = DateTime.Now;
 
+        public string Asistencia { get; set; }
+
         public Usuario Usuario { get; set; }
         public Evento Evento { get; set; }
     }

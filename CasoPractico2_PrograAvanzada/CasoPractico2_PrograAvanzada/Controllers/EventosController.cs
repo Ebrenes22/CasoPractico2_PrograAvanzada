@@ -295,5 +295,59 @@ namespace CasoPractico2_PrograAvanzada.Controllers
         {
             return _context.Eventos.Any(e => e.EventoId == id);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Inscripciones(int id)
+        {
+            string userIdStr = HttpContext.Session.GetString("UsuarioId");
+            if (string.IsNullOrEmpty(userIdStr))
+                return RedirectToAction("Login", "Cuenta");
+
+            var lista = await _context.Inscripciones
+                .Include(i => i.Usuario)
+                .Include(i => i.Evento)
+                .Where(i => i.EventoId == id)
+                .ToListAsync();
+
+            ViewBag.Evento = lista.FirstOrDefault()?.Evento
+                             ?? await _context.Eventos.FindAsync(id);
+
+            return View("Inscripciones", lista);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GuardarAsistencia(IList<Inscripciones> model)
+        {
+            if (model == null || !model.Any())
+            {
+                TempData["Error"] = "No se recibieron datos de asistencia.";
+                return RedirectToAction(nameof(Inscripciones), new { id = 0 });
+            }
+
+            var ids = model.Select(x => x.InscripcionesId).ToList();
+            var registros = await _context.Inscripciones
+                .Include(i => i.Evento)
+                .Where(i => ids.Contains(i.InscripcionesId))
+                .ToListAsync();
+
+            foreach (var dbItem in registros)
+            {
+                var posted = model.First(x => x.InscripcionesId == dbItem.InscripcionesId);
+                if (dbItem.Evento.Fecha.Date == DateTime.Today)
+                {
+                    dbItem.Asistencia = posted.Asistencia;
+                    _context.Entry(dbItem).Property(i => i.Asistencia).IsModified = true;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            int eventoId = registros.First().EventoId;
+            TempData["Success"] = "Asistencias guardadas correctamente.";
+            return RedirectToAction(nameof(Inscripciones), new { id = eventoId });
+        }
+
     }
 }
